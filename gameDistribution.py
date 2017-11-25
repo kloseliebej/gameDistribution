@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import g, request, session, flash, redirect, url_for, render_template
+from flask import g, request, session, redirect, url_for, render_template
 import sqlite3
 import config
 app = Flask(__name__)
@@ -20,10 +20,10 @@ def login():
         cursor = g.db.execute('select * from users where name=? and password=?', [name, passwd])
         if cursor.fetchone() is not None:
             session['user'] = name
-            flash('Login successfully!')
+            print 'Login successfully!'
             return redirect(url_for('index'))
         else:
-            flash('No such user!', 'error')
+            print 'No such user!', 'error'
             return redirect(url_for('login'))
     else:
         return render_template('login.html')
