@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body_content %}
+<form name="signup" action="/signup" method="post">
+    Name: <input type="text" name="name" /><br>
+    Email: <input type="text" name="email" /><br>
+    Password: <input type="password" name="passwd" /><br>
+    Confirm Password: <input type="password" name="confpasswd" /><br>
+    <input type="radio" name="type" value="gamer" checked> Gamer<br>
+    <input type="radio" name="type" value="developer"> Developer<br>
+    <input type="submit" value="Register" />
+</form>
+{% endblock %}
