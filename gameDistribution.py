@@ -8,7 +8,7 @@ app.config.from_object('config')
 @app.route('/')
 def index():
     if 'user' in session:
-        return 'Hello %s!' % session['user']
+        return render_template('manager_profile.html', session=session)
     else:
         return redirect(url_for('login'), 302)
 
