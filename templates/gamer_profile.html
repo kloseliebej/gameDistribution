@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <p>Welcome, {{ session['user'] }}</p>
+    <a href="/logout">log out</a>
+    <a href="/">Games</a>
+    <a href="/">Security</a>
+    <a href="/">Payment</a><br>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Purchased Date</th>
+            <th>Comments & Rating</th>
+        </tr>
+        <tr>
+            <td>Jill</td>
+            <td>Smith</td>
+            <td>50</td>
+        </tr>
+        <tr>
+            <td>Eve</td>
+            <td>Jackson</td>
+            <td>94</td>
+        </tr>
+    </table>
+{% endblock %}
