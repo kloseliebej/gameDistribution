@@ -29,9 +29,9 @@ create table bank_account (
   address text not null,
   name text not null,
   userID integer not null,
+  isDefault boolean not null,
   FOREIGN KEY (userID) REFERENCES users (userID)
   ON DELETE CASCADE ON UPDATE NO ACTION ,
-  isDefault boolean not null,
   PRIMARY KEY (accountID, routingID)
 );
 
@@ -69,8 +69,8 @@ create table genres (
   PRIMARY KEY (genre, gameID)
 );
 
-drop table if exists transaction;
-create table transaction (
+drop table if exists transactions;
+create table transactions (
   date text not null,
   gameID integer not null,
   userID integer not null,
