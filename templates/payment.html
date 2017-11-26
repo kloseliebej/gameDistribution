@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <p>Welcome, {{ session['user'] }}</p>
+    <a href="/logout">log out</a>
+    <a href="/games">Games</a>
+    <a href="/security">Security</a>
+    Payment
+    <h2>Payment Information</h2>
+    <table>
+        <tr>
+            <th>Card #</th>
+            <th>Exp. Date</th>
+        </tr>
+        {% for card in cards %}
+            <tr>
+                <td>{{ card['last'] }}</td>
+                <td>{{ card['exp'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="/add-card">Add a new card</a>
+{% endblock %}
