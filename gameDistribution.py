@@ -91,6 +91,9 @@ def bankaccount():
         cursor = g.db.execute('select * from bank_account where accountID=?', [accountID])
         if cursor.fetchone() is None:
             print 'insert new bank account'
+            if isDefault == 1:
+                g.db.execute('update bank_account set isDefault=0 ')
+                g.db.commit()
             g.db.execute('insert into bank_account (accountID, routingID, address, name, userID, isDefault) '
                          'values (?,?,?,?,?,?)',
                         [accountID, routingID, address, name, session['userID'], isDefault])
@@ -111,9 +114,17 @@ def security():
     if request.method == 'POST':
         if 'email' in request.form:
             newemail = request.form['email']
+            g.db.execute('update users set email=? where userID=?', [newemail, session['userID']])
+            g.db.commit()
+            session['email'] = newemail
+            return redirect(url_for('security'))
 
         if 'password' in request.form:
             newpwd = request.form['password']
+            g.db.execute('update users set password=? where userID=?', [newpwd, session['userID']])
+            g.db.commit()
+            session['password'] = newpwd
+            return redirect(url_for('security'))
     else:
         return render_template('security.html', session=session)
 

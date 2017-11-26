@@ -11,7 +11,7 @@
 <a href="">Security</a>
 <p>Bank Account Information</p>
 <p>Accounts</p>
-<table style="width:100%">
+<table style="width:70%">
   <tr>
     <th>Account#</th>
     <th>Routing#</th>
@@ -22,6 +22,7 @@
         {% for i in range(3) %}
             <td>{{ account[i] }}</td>
         {% endfor %}
+            <td><button onclick="delete()">delete</button></td>
         </tr>
   {% endfor %}
 </table>
@@ -33,5 +34,8 @@
     <input type="checkbox" name="isDefault">set as default<br>
     <input type="submit" value="Register" />
 </form>
+<script>
+
+</script>
 </body>
 </html>
