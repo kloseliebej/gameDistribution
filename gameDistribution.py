@@ -72,6 +72,7 @@ def signup():
             print "signup succesfully!"
             g.db.execute('insert into users (name, password, email, isGamer, isDeveloper, isManager) values (?,?,?,?,?,0)',
                          [name, passwd, email, isGamer , isDeveloper])
+            g.db.commit()
             return redirect(url_for('index'))
         else:
             print "user already exist!"
@@ -90,13 +91,10 @@ def bankaccount():
         cursor = g.db.execute('select * from bank_account where accountID=?', [accountID])
         if cursor.fetchone() is None:
             print 'insert new bank account'
-            print session['userID']
             g.db.execute('insert into bank_account (accountID, routingID, address, name, userID, isDefault) '
                          'values (?,?,?,?,?,?)',
                         [accountID, routingID, address, name, session['userID'], isDefault])
-            test = g.db.execute('select * from bank_account')
-            tests = test.fetchall()
-            print "test in post", tests
+            g.db.commit()
         else:
             print "account number already exists!"
             return redirect(url_for('bankaccount'))
@@ -105,11 +103,7 @@ def bankaccount():
     else:
         cursor = g.db.execute('select accountID, routingID, isDefault from bank_account where userID=?',
                               [session['userID']])
-        test = g.db.execute('select * from bank_account')
-        tests = test.fetchall()
         accounts = cursor.fetchall()
-        print "test", tests
-        print session['userID']
         return render_template('bank_account.html', accounts=accounts)
 
 @app.route('/security', methods=['POST','GET'])
