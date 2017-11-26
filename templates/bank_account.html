@@ -22,7 +22,7 @@
         {% for i in range(3) %}
             <td>{{ account[i] }}</td>
         {% endfor %}
-            <td><button onclick="delete()">delete</button></td>
+            <td><button onclick="Delete()">delete</button></td>
         </tr>
   {% endfor %}
 </table>
@@ -35,7 +35,7 @@
     <input type="submit" value="Register" />
 </form>
 <script>
-    function delete() {
+    function Delete() {
         method = "post";
         path = '/security';
 
