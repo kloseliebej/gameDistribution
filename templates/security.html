@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>security</title>
+</head>
+<body>
+<p>Security Setting</p>
+<p>Email: {{ session['email'] }}</p>
+<button onclick="changeEmail()">Change Email</button>
+<p>Password: {{ session['password'] }}</p>
+<button onclick="changePassword()">Change Password</button>
+<script>
+    function changeEmail() {
+        method = "post";
+        path = '/security';
+
+        var form = document.createElement("form");
+        form.setAttribute("method", method);
+        form.setAttribute("action", path);
+        var newemail = prompt("Please enter your new email:");
+        var email = document.createElement("input");
+        email.setAttribute("type", "text");
+        email.setAttribute("name", "email");
+        email.setAttribute("value", newemail);
+        form.appendChild(email);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+    function changePassword() {
+        method = "post";
+        path = '/security';
+
+        var form = document.createElement("form");
+        form.setAttribute("method", method);
+        form.setAttribute("action", path);
+        var newpassword = prompt("Please enter your new password:");
+        var pwd = document.createElement("input");
+        pwd.setAttribute("type", "text");
+        pwd.setAttribute("name", "password");
+        pwd.setAttribute("value", newpassword);
+        form.appendChild(pwd);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+</body>
+</html>

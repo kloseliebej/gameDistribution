@@ -6,7 +6,7 @@
 </head>
 
 <body>
-    <p>Hello {{ session['user'] }}</p>
+    <p>Welcome {{ session['user'] }}</p>
     <a href="/logout">log out</a>
 <script>
     var username = '{{ session['user'] }}';

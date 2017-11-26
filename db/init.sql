@@ -29,7 +29,7 @@ create table bank_account (
   address text not null,
   name text not null,
   userID integer not null,
-  isDefault boolean not null,
+  isDefault integer not null,
   FOREIGN KEY (userID) REFERENCES users (userID)
   ON DELETE CASCADE ON UPDATE NO ACTION ,
   PRIMARY KEY (accountID, routingID)

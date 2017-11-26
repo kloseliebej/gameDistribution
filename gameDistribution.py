@@ -14,19 +14,22 @@ def index():
         elif session['user_type'] == 'gamer':
             return render_template('manager_profile.html', session=session)
         else:
-            return render_template('manager_profile.html', session=session)
+            return render_template('developer_profile.html', session=session)
     else:
         return redirect(url_for('login'), 302)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        name = request.form['user']
+        email = request.form['email']
         passwd = request.form['passwd']
-        cursor = g.db.execute('select * from users where name=? and password=?', [name, passwd])
+        cursor = g.db.execute('select * from users where email=? and password=?', [email, passwd])
         data = cursor.fetchone()
         if data is not None:
-            session['user'] = name
+            session['user'] = data[1]
+            session['userID'] = data[0]
+            session['email'] = data[3]
+            session['password'] = data[2]
             if data[4] == 1:
                 session['user_type'] = 'gamer'
             elif data[5] == 1:
@@ -59,9 +62,13 @@ def signup():
             isDeveloper = 1
             isGamer = 0
         cursor = g.db.execute('select * from users where email=?', [email])
+        users = g.db.execute('select * from users').fetchall()
         if cursor.fetchone() is None:
             session['user'] = name
             session['user_type'] = request.form['type']
+            session['userID'] = users[-1][0]+1
+            session['email'] = email
+            session['password'] = passwd
             print "signup succesfully!"
             g.db.execute('insert into users (name, password, email, isGamer, isDeveloper, isManager) values (?,?,?,?,?,0)',
                          [name, passwd, email, isGamer , isDeveloper])
@@ -71,6 +78,50 @@ def signup():
             return redirect(url_for('signup'))
     else:
         return render_template('signup.html')
+
+@app.route('/bankaccount', methods=['POST', 'GET'])
+def bankaccount():
+    if request.method == 'POST':
+        accountID = request.form['accountID']
+        routingID = request.form['routingID']
+        address = request.form['address']
+        name = request.form['name']
+        isDefault = 1 if request.form['isDefault'] else 0
+        cursor = g.db.execute('select * from bank_account where accountID=?', [accountID])
+        if cursor.fetchone() is None:
+            print 'insert new bank account'
+            print session['userID']
+            g.db.execute('insert into bank_account (accountID, routingID, address, name, userID, isDefault) '
+                         'values (?,?,?,?,?,?)',
+                        [accountID, routingID, address, name, session['userID'], isDefault])
+            test = g.db.execute('select * from bank_account')
+            tests = test.fetchall()
+            print "test in post", tests
+        else:
+            print "account number already exists!"
+            return redirect(url_for('bankaccount'))
+
+        return redirect(url_for('bankaccount'))
+    else:
+        cursor = g.db.execute('select accountID, routingID, isDefault from bank_account where userID=?',
+                              [session['userID']])
+        test = g.db.execute('select * from bank_account')
+        tests = test.fetchall()
+        accounts = cursor.fetchall()
+        print "test", tests
+        print session['userID']
+        return render_template('bank_account.html', accounts=accounts)
+
+@app.route('/security', methods=['POST','GET'])
+def security():
+    if request.method == 'POST':
+        if 'email' in request.form:
+            newemail = request.form['email']
+
+        if 'password' in request.form:
+            newpwd = request.form['password']
+    else:
+        return render_template('security.html', session=session)
 
 @app.before_request
 def before_request():
