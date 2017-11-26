@@ -12,7 +12,7 @@ def index():
         if session['user_type'] == 'manager':
             return render_template('manager_profile.html', session=session)
         elif session['user_type'] == 'gamer':
-            return render_template('manager_profile.html', session=session)
+            return render_template('gamer_profile.html', session=session)
         else:
             return render_template('developer_profile.html', session=session)
     else:

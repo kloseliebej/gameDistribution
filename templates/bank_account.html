@@ -35,7 +35,23 @@
     <input type="submit" value="Register" />
 </form>
 <script>
+    function delete() {
+        method = "post";
+        path = '/security';
 
+        var form = document.createElement("form");
+        form.setAttribute("method", method);
+        form.setAttribute("action", path);
+        var newemail = prompt("Please enter your new email:");
+        var email = document.createElement("input");
+        email.setAttribute("type", "text");
+        email.setAttribute("name", "email");
+        email.setAttribute("value", newemail);
+        form.appendChild(email);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 </body>
 </html>
