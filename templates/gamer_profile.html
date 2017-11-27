@@ -2,7 +2,28 @@
 {% block body_content %}
     <p>Welcome, {{ session['user'] }}</p>
     <a href="/logout">log out</a>
-    <a href="/games">Games</a>
+    <a href="/">Store</a>
+    Games
     <a href="/security">Security</a>
     <a href="/payment">Payment</a><br>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Purchased Date</th>
+            <th>Comments & Rating</th>
+        </tr>
+        {% for game in games %}
+            <tr>
+                <td>{{ game["name"] }}</td>
+                <td>{{ game["purchaseDate"] }}</td>
+                {% if game["reviews"] %}
+                    <td>{{ game["reviews"] }}</td>
+                {% else %}
+                    <td>
+                        <a href="/add-review/{{ game['gameID'] }}">Add review</a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

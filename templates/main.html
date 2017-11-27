@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <script type="text/javascript">
+    </script>
+    <h1>Game Distribution</h1>
+    {% if 'user' in session %}
+        <a href="/profile">{{ session['user'] }}</a>
+        {% if session['user_type'] == "gamer" %}
+            <a href="/cart">Cart</a>
+        {% else %}
+            <a href="/upload">Upload</a>
+        {% endif %}
+    {% else %}
+        <a href="/login">Sign In</a>
+    {% endif %}
+    <form name="store-name" method="post" action="/">
+        <select name="store-name" onchange="this.form.submit()">
+            <option selected disabled>{{ session['store-name'] }}</option>
+            <option class="Store" value="Store">Store</option>
+            <option class="New Release" value="New Release">New Release</option>
+            <option class="Best Seller" value="Best Seller">Best Seller</option>
+            <option class="High Rating" value="High Rating">High Rating</option>
+            <option class="On Sale" value="On Sale">On Sale</option>
+        </select>
+    </form>
+    <form name='search' method="post" action="/">
+        <input type="text" name="keyword"><input type="submit" value="Search">
+    </form>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Discount</th>
+            <th>Price</th>
+            <th>Developer</th>
+            <th>Release Date</th>
+        </tr>
+        {% for game in games %}
+            <tr>
+                <td>{{ game['name'] }}</td>
+                <td>{{ game['discount'] }}</td>
+                <td>{{ game['price'] }}</td>
+                <td>{{ game['developer'] }}</td>
+                <td>{{ game['releasedate'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -1,14 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>developer_profile</title>
-</head>
-<body>
-<p>Welcome {{ session['user'] }}</p>
-<a href="/logout">log out</a>
-<a href="">Games</a>
-<a href="/security">Security</a>
-<a href="/bankaccount">Bank Account</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block body_content %}
+    <p>Welcome {{ session['user'] }}</p>
+    <a href="/logout">log out</a>
+    <a href="/">Store</a>
+    Games
+    <a href="/security">Security</a>
+    <a href="/bankaccount">Bank Account</a>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Release Date</th>
+            <th>Rating</th>
+            <th>Comments</th>
+            <th>No. of Copies</th>
+            <th>Income</th>
+            <th>Discount</th>
+        </tr>
+        {% for game in games %}
+            <tr>
+                <td>{{ game["name"] }}</td>
+                <td>{{ game["releasedate"] }}</td>
+                {% if game["reviews"] %}
+                    <td>{{ game['rating'] }}</td>
+                    <td>
+                        <a href="">Have a look</a>
+                    </td>
+                {% else %}
+                    <td>None</td>
+                    <td>None</td>
+                {% endif %}
+                <td>{{ game['copies'] }}</td>
+            <td>{{ game['income'] }}</td>
+                <td>{{ game['discount'] }}, <a href="/update-discount">Update</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

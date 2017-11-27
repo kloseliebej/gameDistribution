@@ -1,22 +1,74 @@
 from flask import Flask
 from flask import g, request, session, redirect, url_for, render_template
 import sqlite3
+from datetime import date
 import config
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def index():
+    if request.method == 'POST':
+        if 'store-name' in request.form:
+            store_name = request.form['store-name']
+            session['store-name'] = store_name
+        return redirect(url_for('index'))
+    else:
+        cursor = g.db.execute('SELECT games.name, discount, price, users.name, publishDate '
+                              'FROM games JOIN users '
+                              'WHERE users.userID = games.developerID')
+        games = cursor.fetchall()
+        data_list = []
+        for game in games:
+            d = {'name': game[0],
+                 'discount': game[1],
+                 'price': game[2],
+                 'developer': game[3],
+                 'releasedate': game[4]}
+            data_list.append(d)
+        return render_template('main.html', session=session, games=data_list)
+
+
+@app.route('/profile')
+def profile():
     if 'user' in session:
         print session
         if session['user_type'] == 'manager':
             return render_template('manager_profile.html', session=session)
         elif session['user_type'] == 'gamer':
-            return render_template('gamer_profile.html', session=session)
+            cursor = g.db.execute('SELECT games.gameID, games.name, transactions.date, reviews.comment, reviews.rating '
+                                  'FROM games JOIN transactions ON transactions.userID = ? '
+                                  'LEFT JOIN reviews ON games.gameID = reviews.gameID', [session['userID']])
+            games = cursor.fetchall()
+            data_list = []
+            for game in games:
+                d = {}
+                d['gameID'] = game[0]
+                d['name'] = game[1]
+                d['purchaseDate'] = game[2]
+                d['reviews'] = game[3] + ", " + game[4]
+                data_list.append(d)
+            return render_template('gamer_profile.html', session=session, games=data_list)
         else:
-            return render_template('developer_profile.html', session=session)
+            cursor = g.db.execute('SELECT games.name, games.publishDate, AVG(reviews.rating), COUNT(*) as saleNum,'
+                                  'COUNT(*) * games.discount * games.price as income, games.discount '
+                                  'FROM games '
+                                  'LEFT JOIN transactions ON games.gameID = transactions.gameID '
+                                  'LEFT JOIN reviews ON games.gameID = reviews.gameID '
+                                  'WHERE games.developerID = ? GROUP BY games.gameID', [session['userID']])
+            games = cursor.fetchall()
+            data_list = []
+            for game in games:
+                d = {'name': game[0],
+                     'releasedate': game[1],
+                     'rating': game[2],
+                     'reviews': game[2],
+                     'copies': game[3],
+                     'income': game[4],
+                     'discount': game[5]}
+            return render_template('developer_profile.html', session=session, games=data_list)
     else:
         return redirect(url_for('login'), 302)
 
@@ -137,22 +189,6 @@ def security():
         return render_template('security.html', session=session)
 
 
-@app.route('/games')
-def user_games():
-    cursor = g.db.execute('SELECT games.gameID, games.name, transactions.date, reviews.comment, reviews.rating '
-                          'FROM games JOIN transactions ON transactions.userID = ? '
-                          'LEFT JOIN reviews ON games.gameID = reviews.gameID', [session['userID']])
-    games = cursor.fetchall()
-    data_list = []
-    for game in games:
-        d = {}
-        d['gameID'] = game[0]
-        d['name'] = game[1]
-        d['purchaseDate'] = game[2]
-        d['reviews'] = game[3] + ", " + game[4]
-        data_list.append(d)
-    return render_template('games.html', session=session, games=data_list)
-
 @app.route('/add-review/<int:gameID>', methods=['POST', 'GET'])
 def add_review(gameID):
     if request.method == 'POST':
@@ -163,7 +199,7 @@ def add_review(gameID):
         g.db.execute('INSERT INTO reviews (rating, comment, userID, gameID) '
                      'VALUES (?,?,?,?)', [rating, comment, uid, gid])
         g.db.commit()
-        return redirect(url_for(user_games))
+        return redirect(url_for('profile'))
     else:
         data = {'gameID', gameID}
         return render_template('add_review.html', session=session, game=data)
@@ -171,8 +207,8 @@ def add_review(gameID):
 
 @app.route('/payment')
 def show_payment():
-    cursor = g.db.execute('SELECT cardID, expDate from payment_information '
-                         'WHERE userID = ?', [session['userID']])
+    cursor = g.db.execute('SELECT cardID, expDate FROM payment_information '
+                          'WHERE userID = ?', [session['userID']])
     cards = cursor.fetchall()
     data_list = []
     for card in cards:
@@ -199,6 +235,21 @@ def add_card():
     else:
         return render_template('add_card.html', session=session)
 
+
+@app.route('/upload', methods=['POST', 'GET'])
+def upload():
+    if request.method == 'POST':
+        uid = session['userID']
+        name = request.form['name']
+        price = int(request.form['price'])
+        discount = int(request.form['discount'])
+        d = str(date.today())
+        g.db.execute('INSERT INTO games (name, discount, price, developerID, publishDate) '
+                     'VALUES (?,?,?,?,?)', [name, discount, price, uid, d])
+        g.db.commit()
+        return redirect(url_for('profile'))
+    else:
+        return render_template('upload.html', session=session)
 
 @app.before_request
 def before_request():

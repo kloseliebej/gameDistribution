@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <form action="/upload" method="post">
+    Game Title:<input type="text" name="name">
+    Price: <input type="text" name="price">
+    Discount: <input type="text" name="discount">
+    <input type="submit" value="Upload">
+    </form>
+{% endblock %}

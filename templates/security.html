@@ -7,13 +7,12 @@
 <body>
 <p>Security Setting</p>
 <a href="/logout">log out</a>
+<a href="/">Store</a>
+<a href="/profile">Games</a>
+Security
 {% if session['user_type'] == 'gamer' %}
-    <a href="/games">Games</a>
-    Security
     <a href="/payment">Payment</a>
 {% else %}
-    <a href="/">Games</a>
-    Security
     <a href="/bankaccount">Bank Account</a>
 {% endif %}
 <p>Email: {{ session['email'] }}</p>
