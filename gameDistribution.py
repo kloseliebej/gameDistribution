@@ -16,10 +16,16 @@ def index():
             session['store-name'] = store_name
         return redirect(url_for('index'))
     else:
-        cursor = g.db.execute('SELECT games.name, discount, price, users.name, publishDate '
+        cursor = g.db.execute('SELECT games.name, discount, price, users.name, publishDate, games.gameID '
                               'FROM games JOIN users '
                               'WHERE users.userID = games.developerID')
         games = cursor.fetchall()
+        cursor = g.db.execute('SELECT games.name FROM games '
+                              'JOIN transactions ON transactions.userID = ?', [session['userID']])
+        owned = cursor.fetchall()
+        names = set()
+        for o in owned:
+            names.add(o[0])
         data_list = []
         for game in games:
             d = {'name': game[0],
@@ -27,6 +33,10 @@ def index():
                  'price': game[2],
                  'developer': game[3],
                  'releasedate': game[4]}
+            if game[0] in names:
+                d['addtocart'] = None
+            else:
+                d['addtocart'] = "<a>Add to cart</a>"
             data_list.append(d)
         return render_template('main.html', session=session, games=data_list)
 
