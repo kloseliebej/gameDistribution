@@ -12,7 +12,7 @@
             <th>Release Date</th>
             <th>Rating</th>
             <th>Comments</th>
-            <th>No. of Copies</th>
+            <th>SalesNum</th>
             <th>Income</th>
             <th>Discount</th>
         </tr>
@@ -31,7 +31,7 @@
                 {% endif %}
                 <td>{{ game['copies'] }}</td>
             <td>{{ game['income'] }}</td>
-                <td>{{ game['discount'] }}, <a href="/update-discount">Update</a></td>
+                <td>{{ game['discount'] }}% <a href="/update-discount">Update</a></td>
             </tr>
         {% endfor %}
     </table>

@@ -52,8 +52,8 @@ def profile():
                 data_list.append(d)
             return render_template('gamer_profile.html', session=session, games=data_list)
         else:
-            cursor = g.db.execute('SELECT games.name, games.publishDate, AVG(reviews.rating), COUNT(*) as saleNum,'
-                                  'COUNT(*) * games.discount * games.price as income, games.discount '
+            cursor = g.db.execute('SELECT games.name, games.publishDate, AVG(reviews.rating), COUNT(transactions.gameID) as saleNum,'
+                                  'COUNT(transactions.gameID) * games.discount * games.price / 100 as income, games.discount '
                                   'FROM games '
                                   'LEFT JOIN transactions ON games.gameID = transactions.gameID '
                                   'LEFT JOIN reviews ON games.gameID = reviews.gameID '
@@ -68,6 +68,7 @@ def profile():
                      'copies': game[3],
                      'income': game[4],
                      'discount': game[5]}
+                data_list.append(d)
             return render_template('developer_profile.html', session=session, games=data_list)
     else:
         return redirect(url_for('login'), 302)
