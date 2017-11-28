@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block body_content %}
     <p>Welcome, {{ session['user'] }}</p>
-    <a href="/logout">log out</a>
-    <a href="/games">Games</a>
-    <a href="/security">Security</a>
-    <a href="/payment">Payment</a>
     <h2>Add a new card</h2>
     <form name="add_card" action="/add-card" method="post">
         Card #: <input type="text" name="cardID"/> CVV: <input type="text" name="cvv"/><br>

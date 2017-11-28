@@ -1,4 +1,32 @@
 {% extends "base.html" %}
 {% block body_content %}
-    
+    <h2>Cart Checkout</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Discount</th>
+            <th>Price</th>
+        </tr>
+        {% for game in games %}
+            <tr>
+                <td>{{ game['name'] }}</td>
+                <td>-{{ game['discount'] }}%</td>
+                <td>{{ game['price'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <p> Total Price: {{ price }}</p>
+
+    <h4>Choose the card:</h4>
+    {% for card in cards %}
+        Card#: **** **** **** {{ card['last'] }}
+        <input type="radio" name="whichcard" value="{{ card['cardID'] }}" checked><br>
+    {% endfor %}
+    <form method="post" action="/cart">
+        <input type="submit" value="Buy with selected card">
+    </form>
+    Or<br>
+    <a href="/add-card">
+        <button>Add a card</button>
+    </a>
 {% endblock %}

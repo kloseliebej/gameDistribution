@@ -54,7 +54,8 @@ def profile():
         elif session['user_type'] == 'gamer':
             cursor = g.db.execute('SELECT games.gameID, games.name, transactions.date, reviews.comment, reviews.rating '
                                   'FROM games JOIN transactions ON transactions.userID = ? '
-                                  'LEFT JOIN reviews ON games.gameID = reviews.gameID', [session['userID']])
+                                  'LEFT JOIN reviews ON games.gameID = reviews.gameID '
+                                  'AND reviews.userID = ?', [session['userID'], session['userID']])
             games = cursor.fetchall()
             data_list = []
             for game in games:
@@ -62,7 +63,8 @@ def profile():
                 d['gameID'] = game[0]
                 d['name'] = game[1]
                 d['purchaseDate'] = game[2]
-                d['reviews'] = game[3] + ", " + game[4]
+                if game[3]:
+                    d['reviews'] = game[3] + ", " + str(game[4])
                 data_list.append(d)
             return render_template('gamer_profile.html', session=session, games=data_list)
         else:
@@ -275,6 +277,44 @@ def add_to_cart(game_name):
     elif game_name not in session['cart']:
         session['cart'].append(game_name)
     return redirect(url_for('index'))
+
+
+@app.route('/cart', methods=['POST', 'GET'])
+def checkout():
+    if request.method == 'POST':
+        for gameID in session['cartgameID']:
+            date_str= str(date.today())
+            g.db.execute('INSERT INTO transactions (date, gameID, userID) '
+                         'VALUES (?,?,?)', [date_str, gameID, session['userID']])
+            g.db.commit()
+        return redirect(url_for('profile'))
+    else:
+        data_list = []
+        gameID_list = []
+        price = 0
+        for game_name in session['cart']:
+            cursor = g.db.execute('SELECT name, discount, price, gameID FROM games WHERE name = ?', [game_name])
+            game = cursor.fetchone()
+            d = {'name': game[0],
+                 'discount': game[1],
+                 'price': int((100 - game[1]) * game[2]/ 100.0),
+                 'gameID': game[3]}
+            data_list.append(d)
+            gameID_list.append(d['gameID'])
+            price += d['price']
+        session['cartgameID'] = gameID_list
+        # card part
+        cursor = g.db.execute('SELECT cardID, expDate FROM payment_information '
+                              'WHERE userID = ?', [session['userID']])
+        cards = cursor.fetchall()
+        card_list = []
+        for card in cards:
+            d = {}
+            d['cardID'] = card[0]
+            d['last'] = card[0] % 10000
+            d['exp'] = card[1]
+            card_list.append(d)
+        return render_template('cart.html', session=session, games=data_list, price=price, cards=card_list)
 
 
 @app.before_request

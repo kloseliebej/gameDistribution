@@ -16,7 +16,7 @@
             <tr>
                 <td>{{ game["name"] }}</td>
                 <td>{{ game["purchaseDate"] }}</td>
-                {% if game["reviews"] %}
+                {% if 'reviews' in game %}
                     <td>{{ game["reviews"] }}</td>
                 {% else %}
                     <td>

@@ -1,12 +1,7 @@
 {% extends "base.html" %}
 {% block body_content %}
     <p>Welcome, {{ session['user'] }}</p>
-    <a href="/logout">log out</a>
-    <a href="/games">Games</a>
-    <a href="/security">Security</a>
-    <a href="/">Payment</a><br>
-
-    <h2>add reviews</h2>
+    <h2>Add reviews</h2>
     <form action="/add-review/{{ game['gameID'] }}" method="post">
         Comments:<br>
         <textarea name="comment" rows="10" cols="50"></textarea><br>
