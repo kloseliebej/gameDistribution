@@ -6,7 +6,7 @@
     {% if 'user' in session %}
         <a href="/profile">{{ session['user'] }}</a>
         {% if session['user_type'] == "gamer" %}
-            <a href="/cart">Cart</a>
+            <a href="/cart">Cart({{ session['incart'] }})</a>
         {% else %}
             <a href="/upload">Upload</a>
         {% endif %}
@@ -41,7 +41,11 @@
                 <td>{{ game['price'] }}</td>
                 <td>{{ game['developer'] }}</td>
                 <td>{{ game['releasedate'] }}</td>
-                <td>{{ game['addtocart'] }}</td>
+                {% if 'user' in session %}
+                    {% if session['user_type'] == 'gamer' %}
+                        <td><a href="/add-to-cart/{{ game['name'] }}">{{ game['addtocart'] }}</a></td>
+                    {% endif %}
+                {% endif %}
             </tr>
         {% endfor %}
     </table>

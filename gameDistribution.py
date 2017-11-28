@@ -36,8 +36,12 @@ def index():
             if game[0] in names:
                 d['addtocart'] = None
             else:
-                d['addtocart'] = "<a>Add to cart</a>"
+                d['addtocart'] = "Add to cart"
             data_list.append(d)
+        if 'cart' in session:
+            session['incart'] = len(session['cart'])
+        else:
+            session['incart'] = 0
         return render_template('main.html', session=session, games=data_list)
 
 
@@ -114,7 +118,8 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    return redirect(url_for('login'))
+    session.pop('cart', None)
+    return redirect(url_for('index'))
 
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -261,6 +266,16 @@ def upload():
         return redirect(url_for('profile'))
     else:
         return render_template('upload.html', session=session)
+
+
+@app.route('/add-to-cart/<game_name>')
+def add_to_cart(game_name):
+    if 'cart' not in session:
+        session['cart'] = [game_name]
+    elif game_name not in session['cart']:
+        session['cart'].append(game_name)
+    return redirect(url_for('index'))
+
 
 @app.before_request
 def before_request():
