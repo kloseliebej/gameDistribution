@@ -15,6 +15,7 @@
             <th>SalesNum</th>
             <th>Income</th>
             <th>Discount</th>
+            <th>Genres</th>
         </tr>
         {% for game in games %}
             <tr>
@@ -23,15 +24,19 @@
                 {% if game["reviews"] %}
                     <td>{{ game['rating'] }}</td>
                     <td>
-                        <a href="">Have a look</a>
+                        <a href="/show-single/{{ game['name'] }}">Have a look</a>
                     </td>
                 {% else %}
                     <td>None</td>
                     <td>None</td>
                 {% endif %}
                 <td>{{ game['copies'] }}</td>
-            <td>{{ game['income'] }}</td>
+                <td>{{ game['income'] }}</td>
                 <td>{{ game['discount'] }}% <a href="/update-discount">Update</a></td>
+                <td>
+                    <a href="/add-genre/{{ game['gameID'] }}">Add</a>,
+                    {% for g in game['genres'] %}<button>{{ g }}</button> {% endfor %}
+                </td>
             </tr>
         {% endfor %}
     </table>

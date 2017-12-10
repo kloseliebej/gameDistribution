@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-
-<body>
-    <p>Welcome {{ session['user'] }}</p>
+{% extends "base.html" %}
+{% block body_content %}
+    <p>Welcome, {{ session['user'] }}</p>
     <a href="/logout">log out</a>
-<script>
-    var username = '{{ session['user'] }}';
-    document.getElementById('greeting').innerHTML = 'Hello ' + username;
-</script>
-</body>
-</html>
+    <p>Check <a href="">Sale Report</a></p>
+    <p>Check <a href="">Top Developers</a></p>
+    <p>Check <a href="">Popular Game Genres</a></p>
+{% endblock %}

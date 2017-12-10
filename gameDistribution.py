@@ -64,12 +64,12 @@ def profile():
                 d['name'] = game[1]
                 d['purchaseDate'] = game[2]
                 if game[3]:
-                    d['reviews'] = game[3] + ", " + str(game[4])
+                    d['reviews'] = "\"" + game[3] + "\", (" + str(game[4]) + ") stars "
                 data_list.append(d)
             return render_template('gamer_profile.html', session=session, games=data_list)
         else:
             cursor = g.db.execute('SELECT games.name, games.publishDate, AVG(reviews.rating), COUNT(transactions.gameID) as saleNum,'
-                                  'COUNT(transactions.gameID) * games.discount * games.price / 100 as income, games.discount '
+                                  'COUNT(transactions.gameID) * games.discount * games.price / 100 as income, games.discount, games.gameID '
                                   'FROM games '
                                   'LEFT JOIN transactions ON games.gameID = transactions.gameID '
                                   'LEFT JOIN reviews ON games.gameID = reviews.gameID '
@@ -83,7 +83,14 @@ def profile():
                      'reviews': game[2],
                      'copies': game[3],
                      'income': game[4],
-                     'discount': game[5]}
+                     'discount': game[5],
+                     'gameID': game[6],
+                     'genres': []
+                     }
+                cursor = g.db.execute('SELECT genre FROM genres WHERE gameID = ?', [game[6]])
+                genres = cursor.fetchall()
+                for genre in genres:
+                    d['genres'].append(genre[0])
                 data_list.append(d)
             return render_template('developer_profile.html', session=session, games=data_list)
     else:
@@ -209,6 +216,7 @@ def security():
 
 @app.route('/add-review/<int:gameID>', methods=['POST', 'GET'])
 def add_review(gameID):
+    print gameID
     if request.method == 'POST':
         uid = session['userID']
         gid = gameID
@@ -219,7 +227,7 @@ def add_review(gameID):
         g.db.commit()
         return redirect(url_for('profile'))
     else:
-        data = {'gameID', gameID}
+        data = {'gameID': gameID}
         return render_template('add_review.html', session=session, game=data)
 
 
@@ -316,6 +324,47 @@ def checkout():
             card_list.append(d)
         return render_template('cart.html', session=session, games=data_list, price=price, cards=card_list)
 
+
+@app.route('/show-single/<game_name>')
+def show_single(game_name):
+    cursor = g.db.execute('SELECT name, discount, price, gameID, publishDate FROM games WHERE name = ?', [game_name])
+    game = cursor.fetchone()
+    gid = game[3]
+    d = {
+        'name': game[0],
+        'price': game[2],
+        'discount': game[1],
+        'date': game[4],
+        'gameID': gid,
+        'genres': [],
+        'reviews': []
+    }
+    cursor = g.db.execute('SELECT genre FROM genres WHERE gameID = ?', [gid])
+    genres = cursor.fetchall()
+    for genre in genres:
+        d['genres'].append(genre[0])
+    cursor = g.db.execute('SELECT comment, rating FROM reviews WHERE gameID = ?', [gid])
+    reviews = cursor.fetchall()
+    for review in reviews:
+        d['reviews'].append({
+            'comment': review[0],
+            'rating': review[1]
+        })
+    return render_template('show_single.html', session=session, game=d)
+
+
+@app.route('/add-genre/<int:gameID>', methods=['POST', 'GET'])
+def add_genre(gameID):
+    if request.method == 'POST':
+        uid = session['userID']
+        genre = request.form['genre']
+        g.db.execute('INSERT INTO genres (genre, gameID) '
+                     'VALUES (?,?)', [genre, gameID])
+        g.db.commit()
+        return redirect(url_for('profile'))
+    else:
+        data = {"gameID": gameID}
+        return render_template('add_genre.html', session=session, game=data)
 
 @app.before_request
 def before_request():

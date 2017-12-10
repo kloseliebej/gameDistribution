@@ -36,7 +36,7 @@
         </tr>
         {% for game in games %}
             <tr>
-                <td>{{ game['name'] }}</td>
+                <td><a href="/show-single/{{ game['name'] }}">{{ game['name'] }}</a></td>
                 <td>{{ game['discount'] }}</td>
                 <td>{{ game['price'] }}</td>
                 <td>{{ game['developer'] }}</td>
