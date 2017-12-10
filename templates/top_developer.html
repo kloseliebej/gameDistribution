@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <h2>Top Developer</h2>
+    <a href="/profile">Back</a>
+    <form action="/top-developer" method="post">
+        Start Date:<input type="date" name="start">
+        End Date: <input type="date" name="end">
+        <select name="type" required>
+            <option value="copies">Copies</option>
+            <option value="income">Income</option>
+        </select>
+        <input type="submit" value="Generate report">
+    </form>
+    <table>
+        <tr>
+            <th>Developer</th>
+            <th>Copies</th>
+            <th>Income</th>
+        </tr>
+        {% for dev in devs %}
+            <tr>
+                <td>{{ dev['name'] }}</td>
+                <td>{{ dev['copies'] }}</td>
+                <td>{{ dev['income'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

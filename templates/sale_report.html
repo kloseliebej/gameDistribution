@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <h2>Sale Report</h2>
+    <a href="/profile">Back</a>
+    <form action="/sale-report" method="post">
+        Start Date:<input type="date" name="start">
+        End Date: <input type="date" name="end">
+        <select name="type" required>
+            <option value="copies">Copies</option>
+            <option value="income">Income</option>
+        </select>
+        <input type="submit" value="Generate report">
+    </form>
+    <table>
+        <tr>
+            <th>Game Name</th>
+            <th>Copies</th>
+            <th>Income</th>
+        </tr>
+        {% for game in games %}
+            <tr>
+                <td>{{ game['name'] }}</td>
+                <td>{{ game['copies'] }}</td>
+                <td>{{ game['income'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

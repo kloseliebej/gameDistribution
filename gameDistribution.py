@@ -405,6 +405,91 @@ def show_reviews(gameID):
     return render_template('show_reviews.html', session=session, game=d)
 
 
+@app.route('/sale-report', methods=['POST', 'GET'])
+def sale_report():
+    if request.method == 'POST':
+        start = request.form['start']
+        end = request.form['end']
+        sort_type = request.form['type']
+        cursor = g.db.execute(
+            'SELECT name, COUNT(*) as copies, price * COUNT(*) * discount AS income '
+            'FROM games JOIN transactions '
+            'ON games.gameID = transactions.gameID '
+            'WHERE transactions.date > ? AND transactions.date < ?'
+            'GROUP BY games.gameID ORDER BY ? DESC ' , [start, end, sort_type]
+        )
+        games = cursor.fetchall()
+        data_list = []
+        for game in games:
+            d = {}
+            d['name'] = game[0]
+            d['copies'] = game[1]
+            d['income'] = game[2] / 100.0
+            data_list.append(d)
+        print data_list
+        return render_template('sale_report.html', session=session, games=data_list)
+    else:
+        return render_template("sale_report.html", session=session, games={})
+
+
+@app.route('/top-developer', methods=['POST', 'GET'])
+def top_developer():
+    if request.method == 'POST':
+        start = request.form['start']
+        end = request.form['end']
+        sort_type = request.form['type']
+        cursor = g.db.execute(
+            'SELECT developerID, COUNT(*) as copies, SUM(price * discount) AS income '
+            'FROM games JOIN transactions '
+            'ON games.gameID = transactions.gameID '
+            'WHERE transactions.date > ? AND transactions.date < ?'
+            'GROUP BY games.developerID ORDER BY ? DESC ' , [start, end, sort_type]
+        )
+        devs = cursor.fetchall()
+        data_list = []
+        for dev in devs:
+            d = {}
+            d['name'] = dev[0]
+            d['copies'] = dev[1]
+            d['income'] = dev[2] / 100.0
+            data_list.append(d)
+        print data_list
+        return render_template('top_developer.html', session=session, devs=data_list)
+    else:
+        return render_template("top_developer.html", session=session, devs={})
+
+
+@app.route('/popular-genre', methods=['POST', 'GET'])
+def popular_genre():
+    if request.method == 'POST':
+        start = request.form['start']
+        end = request.form['end']
+        sort_type = request.form['type']
+        cursor = g.db.execute(
+            'SELECT genre, SUM(g.copies) AS copies, SUM(g.copies * g.p) AS income FROM '
+            '(SELECT games.gameID, COUNT(*) AS copies, price * discount AS p, transactions.date '
+            'FROM games JOIN transactions '
+            'ON games.gameID = transactions.gameID '
+            'GROUP BY games.gameID) AS g '
+            'JOIN genres ON g.gameID = genres.gameID '
+            'WHERE g.date > ? AND g.date < ? '
+            'GROUP BY genre ORDER BY ? DESC ' , [start, end, sort_type]
+        )
+        print sort_type, start, end
+        gs = cursor.fetchall()
+        data_list = []
+        for genre in gs:
+            d = {}
+            d['name'] = genre[0]
+            d['copies'] = genre[1]
+            d['income'] = genre[2] / 100.0
+            data_list.append(d)
+        print data_list
+        return render_template('popular_genre.html', session=session, genres=data_list)
+    else:
+        return render_template("popular_genre.html", session=session, genres={})
+
+
 @app.before_request
 def before_request():
     g.db = sqlite3.connect(app.config['DATABASE'])
