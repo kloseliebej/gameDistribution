@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <h2>{{ game['name'] }}</h2>
+    <a href="/profile">Back</a>
+    <table>
+        <tr>
+            <th>Comment</th>
+            <th>Rating</th>
+        </tr>
+        {% for review in game['reviews'] %}
+            <tr>
+                <td>{{ review['comment'] }}</td>
+                <td>{{ review['rating'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

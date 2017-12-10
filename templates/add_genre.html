@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <form action="/add-genre/{{ game['gameID'] }}" method="post">
+        <select name="genre">
+            <option value="action">Action</option>
+            <option value="fps">FPS</option>
+            <option value="rpg">RPG</option>
+            <option value="strategy">Strategy</option>
+        </select>
+        <input type="submit" value="Upload">
+    </form>
+{% endblock %}

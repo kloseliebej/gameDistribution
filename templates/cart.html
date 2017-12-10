@@ -10,7 +10,7 @@
         {% for game in games %}
             <tr>
                 <td>{{ game['name'] }}</td>
-                <td>-{{ game['discount'] }}%</td>
+                <td>{{ game['discount'] }}%</td>
                 <td>{{ game['price'] }}</td>
             </tr>
         {% endfor %}

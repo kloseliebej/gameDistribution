@@ -6,8 +6,12 @@
     {% if 'user' in session %}
         <a href="/profile">{{ session['user'] }}</a>
         {% if session['user_type'] == "gamer" %}
-            <a href="/cart">Cart({{ session['incart'] }})</a>
-        {% else %}
+            {% if session['incart'] != 0 %}
+                <a href="/cart">Cart({{ session['incart'] }})</a>
+            {% else %}
+                Cart
+            {% endif %}
+        {% elif session['user_type'] == "developer" %}
             <a href="/upload">Upload</a>
         {% endif %}
     {% else %}
@@ -36,14 +40,20 @@
         </tr>
         {% for game in games %}
             <tr>
-                <td><a href="/show-single/{{ game['name'] }}">{{ game['name'] }}</a></td>
-                <td>{{ game['discount'] }}</td>
+                <td><a href="/show-single/{{ game['gameID'] }}">{{ game['name'] }}</a></td>
+                <td>{{ game['discount'] }}%</td>
                 <td>{{ game['price'] }}</td>
                 <td>{{ game['developer'] }}</td>
                 <td>{{ game['releasedate'] }}</td>
                 {% if 'user' in session %}
                     {% if session['user_type'] == 'gamer' %}
-                        <td><a href="/add-to-cart/{{ game['name'] }}">{{ game['addtocart'] }}</a></td>
+                        <td>
+                            <a href="/add-to-cart/{{ game['gameID'] }}">
+                                {% if game['addtocart'] %}
+                                    Add to cart
+                                {% endif %}
+                            </a>
+                        </td>
                     {% endif %}
                 {% endif %}
             </tr>

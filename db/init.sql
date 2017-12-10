@@ -44,7 +44,7 @@ create table games(
   developerID integer not null,
   publishDate text not null,
   FOREIGN KEY (developerID) REFERENCES users (userID)
-  ON DELETE SET NULL ON UPDATE NO ACTION
+  ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 drop table if exists reviews;

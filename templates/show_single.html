@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block body_content %}
+    <h2>{{ game['name'] }}</h2>
+    <a href="/">Back</a>
+    <table>
+        <tr>
+            <th>Price</th>
+            <th>Release Date</th>
+            <th>Discount</th>
+            <th>Copies</th>
+            <th>Average Rating</th>
+        </tr>
+        <tr>
+            <td>{{ game['price'] }}</td>
+            <td>{{ game['date'] }}</td>
+            <td>{{ game['discount'] }}%</td>
+            <td>{{ game['copies'] }}</td>
+            <td>{{ game['avg'] }}</td>
+        </tr>
+    </table>
+    {% for g in game['genres'] %}
+        <button>{{ g }}</button>
+    {% endfor %}
+    <table>
+        <tr>
+            <th>Comment</th>
+            <th>Rating</th>
+        </tr>
+        {% for review in game['reviews'] %}
+            <tr>
+                <td>{{ review['comment'] }}</td>
+                <td>{{ review['rating'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
