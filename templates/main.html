@@ -30,6 +30,116 @@
     <form name='search' method="post" action="/">
         <input type="text" name="keyword"><input type="submit" value="Search">
     </form>
+    <script>
+        function showGenreFilter() {
+            $(".genre-checkbox").toggle();
+        }
+        function showReleaseRadio() {
+            $(".release-radio").toggle();
+        }
+        function showPriceRadio() {
+            $(".price-radio").toggle();
+        }
+        $(document).ready(function () {
+            let genres_check = $(".genre-checkbox").children();
+            for (let i = 0; i < genres_check.length; i++) {
+                genres_check[i].addEventListener('click', filters);
+            }
+            let date_radio = $(".release-radio").children();
+            for (i = 0; i < date_radio.length; i++) {
+                date_radio[i].addEventListener("click", filters);
+            }
+            let price_radio = $(".price-radio").children();
+            for (i = 0; i < price_radio.length; i++) {
+                price_radio[i].addEventListener("click", filters);
+            }
+            function filters() {
+                let check_count = 0;
+                let final_genre = new Set();
+                for (let j = 0; j < genres_check.length; j++) {
+                    if (genres_check[j].checked) {
+                        check_count++;
+                        final_genre.add(genres_check[j].value);
+                    }
+                }
+
+                let start = 0, end = 2020;
+                for (i = 0; i < date_radio.length; i++) {
+                    if (date_radio[i].checked) {
+                        l = date_radio[i].value.split(',');
+                        start = parseInt(l[0]);
+                        end = parseInt(l[1]);
+                    }
+                }
+
+                let low = -1, high = 2000;
+                for (i = 0; i < price_radio.length; i++) {
+                    if (price_radio[i].checked) {
+                        l = price_radio[i].value.split(',');
+                        low = parseInt(l[0]);
+                        high = parseInt(l[1]);
+                    }
+                }
+
+                function fit(cand, obj) {
+                    for (let a of obj) {
+                        if (!cand.has(a)) {
+                            return false;
+                        } else {
+                            console.log(a)
+                        }
+                    }
+                    return true;
+                }
+
+                let glist = $(".genres.year.price");
+                for (i = 0; i < glist.length; i++) {
+                    let year = parseInt(glist[i].dataset.year);
+                    let price = parseInt(glist[i].dataset.price);
+                    let genres = new Set(glist[i].dataset.genre.split(","));
+                    console.log(
+                        start, end, year, low, high, price,
+                        start < year, year <= end, low < price, price <= high,
+                        genres, final_genre,
+                        check_count, fit(genres, final_genre)
+                    );
+                    if (start < year && year <= end && low < price && price <= high) {
+                        if (check_count === 0 || fit(genres, final_genre)) {
+                            $(glist[i]).children().show();
+                        } else {
+                            $(glist[i]).children().hide();
+                        }
+                    } else {
+                        $(glist[i]).children().hide();
+                    }
+                }
+            }
+        });
+    </script>
+    <button onclick="showGenreFilter()">Genre ></button>
+    <div class="genre-checkbox">
+        Action<input type="checkbox" id="c-act" value="action">
+        FPS<input type="checkbox" id="c-fps" value="fps">
+        RPG<input type="checkbox" id="c-rpg" value="rpg">
+        Strategy<input type="checkbox" id="c-stg" value="strategy">
+        Simulation<input type="checkbox" id="c-sim" value="simulation">
+    </div>
+    <button onclick="showReleaseRadio()">Release ></button>
+    <div class="release-radio">
+        Before 2000<input type="radio" name="release_range" value="0,2000">
+        2000 - 2010<input type="radio" name="release_range" value="2000,2010">
+        2010 - 2015<input type="radio" name="release_range" value="2010,2015">
+        After 2015<input type="radio" name="release_range" value="2015,2020">
+        All<input type="radio" name="release_range" value="0,2020" checked>
+    </div>
+    <button onclick="showPriceRadio()">Price ></button>
+    <div class="price-radio">
+        <$50<input type="radio" name="price_range" value="0,50">
+        <$100<input type="radio" name="price_range" value="0,100">
+        $100+<input type="radio" name="price_range" value="100,2000">
+        Free<input type="radio" name="price_range" value="-1,0">
+        All<input type="radio" name="price_range" value="-1,2000" checked>
+    </div>
     <table>
         <tr>
             <th>Name</th>
@@ -37,14 +147,29 @@
             <th>Price</th>
             <th>Developer</th>
             <th>Release Date</th>
+            {% if session['store-name'] == "Best Seller" %}
+                <th>Copies</th>
+            {% endif %}
+            {% if session['store-name'] == "High Rating" %}
+                <th>Rating</th>
+            {% endif %}
         </tr>
         {% for game in games %}
-            <tr>
+            <tr class="genres year price"
+                data-genre="{% for genre in game['genres'] %},{{ genre }}{% endfor %}"
+                data-year="{{ game['year'] }}"
+                data-price="{{ game['price'] }}">
                 <td><a href="/show-single/{{ game['gameID'] }}">{{ game['name'] }}</a></td>
                 <td>{{ game['discount'] }}%</td>
                 <td>{{ game['price'] }}</td>
                 <td>{{ game['developer'] }}</td>
                 <td>{{ game['releasedate'] }}</td>
+                {% if 'copies' in game %}
+                    <td>{{ game['copies'] }}</td>
+                {% endif %}
+                {% if 'rating' in game %}
+                    <td>{{ game['rating'] }}</td>
+                {% endif %}
                 {% if 'user' in session %}
                     {% if session['user_type'] == 'gamer' %}
                         <td>

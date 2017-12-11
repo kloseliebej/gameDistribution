@@ -14,12 +14,61 @@ def index():
         if 'store-name' in request.form:
             store_name = request.form['store-name']
             session['store-name'] = store_name
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
+        if 'search' in request.form:
+            query = request.form['search']
+            return
     else:
-        cursor = g.db.execute('SELECT games.name, discount, price, users.name, publishDate, games.gameID '
-                              'FROM games JOIN users '
-                              'ON users.userID = games.developerID')
-        games = cursor.fetchall()
+        games = []
+        if 'store-name' not in session or session['store-name'] == "Store":
+            cursor = g.db.execute('SELECT games.name, discount, price, users.name, publishDate, games.gameID '
+                                  'FROM games JOIN users '
+                                  'ON users.userID = games.developerID')
+            games = cursor.fetchall()
+        elif session['store-name'] == 'New Release':
+            month = int(str(date.today())[5:7]) + 12 - 1
+            month = str(date.today())[:5] + "%02d" % (month % 12) + str(date.today())[7:]
+            print month
+            cursor = g.db.execute('SELECT games.name, discount, price, users.name, publishDate, games.gameID '
+                                  'FROM games JOIN users '
+                                  'ON users.userID = games.developerID '
+                                  'WHERE publishDate > ?', [month])
+            games = cursor.fetchall()
+        elif session['store-name'] == "Best Seller":
+            cursor = g.db.execute('SELECT p.name, discount, price, users.name, publishDate, p.gameID, copies '
+                                  'FROM '
+                                  '(SELECT name, discount, price, publishDate, developerID, games.gameID, COUNT(*) AS copies '
+                                  'FROM games JOIN transactions '
+                                  'ON transactions.gameID = games.gameID '
+                                  'GROUP BY games.gameID) AS p '
+                                  'JOIN users '
+                                  'ON users.userID = p.developerID '
+                                  'ORDER BY p.copies DESC LIMIT 100')
+            games = cursor.fetchall()
+        elif session['store-name'] == "High Rating":
+            cursor = g.db.execute(
+                'SELECT p.name, discount, price, developer, publishDate, p.gameID, AVG(reviews.rating) AS rate '
+                'FROM '
+                '(SELECT games.name, discount, price, publishDate, users.name AS developer, games.gameID '
+                'FROM games JOIN users '
+                'ON users.userID = games.developerID) AS p '
+                'JOIN reviews '
+                'ON reviews.gameID = p.gameID '
+                'GROUP BY p.gameID '
+                'ORDER BY rate DESC '
+                'LIMIT 100'
+            )
+            games = cursor.fetchall()
+        elif session['store-name'] == "On Sale":
+            cursor = g.db.execute(
+                'SELECT games.name, discount, price, users.name, publishDate, games.gameID '
+                'FROM games JOIN users '
+                'ON users.userID = games.developerID '
+                'WHERE discount < 100 '
+                'ORDER BY discount ASC'
+            )
+            games = cursor.fetchall()
+
         cursor = g.db.execute('SELECT games.name FROM games '
                               'JOIN transactions ON transactions.userID = ?'
                               'AND transactions.gameID = games.gameID', [session['userID']])
@@ -35,12 +84,22 @@ def index():
                 'price': game[2],
                 'developer': game[3],
                 'releasedate': game[4],
-                'gameID': game[5]
+                'gameID': game[5],
+                'genres': [],
+                'year': game[4][:4]
             }
+            if session['store-name'] == "Best Seller":
+                d['copies'] = game[6]
+            if session['store-name'] == "High Rating":
+                d['rating'] = game[6]
             if game[0] in names:
                 d['addtocart'] = False
             else:
                 d['addtocart'] = True
+            cursor = g.db.execute('SELECT genre FROM genres WHERE gameID = ?', [d['gameID']])
+            genres = cursor.fetchall()
+            for genre in genres:
+                d['genres'].append(genre[0])
             data_list.append(d)
         print session
         if 'cart' in session:
@@ -308,6 +367,7 @@ def checkout():
                          'VALUES (?,?,?)', [date_str, gameID, session['userID']])
             g.db.commit()
         session.pop('cart')
+        session.pop('cartgameID')
         return redirect(url_for('profile'))
     else:
         data_list = []
@@ -342,7 +402,7 @@ def checkout():
 def show_single(gameID):
     cursor = g.db.execute(
         'SELECT name, discount, price, publishDate, copies, AVG(reviews.rating) FROM '
-        '(SELECT name, discount, price, publishDate, COUNT(*) as copies, games.gameID '
+        '(SELECT name, discount, price, publishDate, COUNT(*) AS copies, games.gameID '
         'FROM games LEFT JOIN transactions ON games.gameID = transactions.gameID '
         'AND games.gameID = ? '
         'GROUP BY games.gameID) AS p '
@@ -412,11 +472,11 @@ def sale_report():
         end = request.form['end']
         sort_type = request.form['type']
         cursor = g.db.execute(
-            'SELECT name, COUNT(*) as copies, price * COUNT(*) * discount AS income '
+            'SELECT name, COUNT(*) AS copies, price * COUNT(*) * discount AS income '
             'FROM games JOIN transactions '
             'ON games.gameID = transactions.gameID '
             'WHERE transactions.date > ? AND transactions.date < ?'
-            'GROUP BY games.gameID ORDER BY ? DESC ' , [start, end, sort_type]
+            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, sort_type]
         )
         games = cursor.fetchall()
         data_list = []
@@ -439,11 +499,11 @@ def top_developer():
         end = request.form['end']
         sort_type = request.form['type']
         cursor = g.db.execute(
-            'SELECT developerID, COUNT(*) as copies, SUM(price * discount) AS income '
+            'SELECT developerID, COUNT(*) AS copies, SUM(price * discount) AS income '
             'FROM games JOIN transactions '
             'ON games.gameID = transactions.gameID '
             'WHERE transactions.date > ? AND transactions.date < ?'
-            'GROUP BY games.developerID ORDER BY ? DESC ' , [start, end, sort_type]
+            'GROUP BY games.developerID ORDER BY ? DESC ', [start, end, sort_type]
         )
         devs = cursor.fetchall()
         data_list = []
@@ -473,7 +533,7 @@ def popular_genre():
             'GROUP BY games.gameID) AS g '
             'JOIN genres ON g.gameID = genres.gameID '
             'WHERE g.date > ? AND g.date < ? '
-            'GROUP BY genre ORDER BY ? DESC ' , [start, end, sort_type]
+            'GROUP BY genre ORDER BY ? DESC ', [start, end, sort_type]
         )
         print sort_type, start, end
         gs = cursor.fetchall()
