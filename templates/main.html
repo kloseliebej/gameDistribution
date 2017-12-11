@@ -117,7 +117,7 @@
         });
     </script>
     <button onclick="showGenreFilter()">Genre ></button>
-    <div class="genre-checkbox">
+    <div class="genre-checkbox" style="display: none;">
         Action<input type="checkbox" id="c-act" value="action">
         FPS<input type="checkbox" id="c-fps" value="fps">
         RPG<input type="checkbox" id="c-rpg" value="rpg">
@@ -125,7 +125,7 @@
         Simulation<input type="checkbox" id="c-sim" value="simulation">
     </div>
     <button onclick="showReleaseRadio()">Release ></button>
-    <div class="release-radio">
+    <div class="release-radio" style="display: none;">
         Before 2000<input type="radio" name="release_range" value="0,2000">
         2000 - 2010<input type="radio" name="release_range" value="2000,2010">
         2010 - 2015<input type="radio" name="release_range" value="2010,2015">
@@ -133,7 +133,7 @@
         All<input type="radio" name="release_range" value="0,2020" checked>
     </div>
     <button onclick="showPriceRadio()">Price ></button>
-    <div class="price-radio">
+    <div class="price-radio" style="display: none;">
         <$50<input type="radio" name="price_range" value="0,50">
         <$100<input type="radio" name="price_range" value="0,100">
         $100+<input type="radio" name="price_range" value="100,2000">
