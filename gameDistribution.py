@@ -11,13 +11,13 @@ app.config.from_object('config')
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
-        if 'store-name' in request.form:
-            store_name = request.form['store-name']
-            session['store-name'] = store_name
-            return redirect(url_for('index'))
         if 'search' in request.form:
             query = request.form['search']
-            return
+            session['store-name'] = query
+        elif 'store-name' in request.form:
+            store_name = request.form['store-name']
+            session['store-name'] = store_name
+        return redirect(url_for('index'))
     else:
         games = []
         if 'store-name' not in session or session['store-name'] == "Store":
@@ -68,7 +68,14 @@ def index():
                 'ORDER BY discount ASC'
             )
             games = cursor.fetchall()
-
+        else:
+            cursor = g.db.execute(
+                'SELECT games.name, discount, price, users.name, publishDate, games.gameID '
+                'FROM games JOIN users '
+                'ON users.userID = games.developerID '
+                'WHERE games.name LIKE ? ', ['%' + session["store-name"] + '%']
+            )
+            games = cursor.fetchall()
         cursor = g.db.execute('SELECT games.name FROM games '
                               'JOIN transactions ON transactions.userID = ?'
                               'AND transactions.gameID = games.gameID', [session['userID']])
