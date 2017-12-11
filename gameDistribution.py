@@ -95,10 +95,11 @@ def index():
                 'genres': [],
                 'year': game[4][:4]
             }
-            if session['store-name'] == "Best Seller":
-                d['copies'] = game[6]
-            if session['store-name'] == "High Rating":
-                d['rating'] = game[6]
+            if 'store-name' in session:
+                if session['store-name'] == "Best Seller":
+                    d['copies'] = game[6]
+                if session['store-name'] == "High Rating":
+                    d['rating'] = game[6]
             if game[0] in names:
                 d['addtocart'] = False
             else:
