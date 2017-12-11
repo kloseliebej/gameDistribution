@@ -485,7 +485,7 @@ def sale_report():
             'FROM games JOIN transactions '
             'ON games.gameID = transactions.gameID '
             'WHERE transactions.date > ? AND transactions.date < ?'
-            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, 'copies']
+            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, sort_type]
         )
         games = cursor.fetchall()
         print games
