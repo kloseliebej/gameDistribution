@@ -412,7 +412,7 @@ def show_single(gameID):
     cursor = g.db.execute(
         'SELECT name, discount, price, publishDate, copies, AVG(reviews.rating) FROM '
         '(SELECT name, discount, price, publishDate, COUNT(*) AS copies, games.gameID '
-        'FROM games LEFT JOIN transactions ON games.gameID = transactions.gameID '
+        'FROM games JOIN transactions ON games.gameID = transactions.gameID '
         'AND games.gameID = ? '
         'GROUP BY games.gameID) AS p '
         'LEFT JOIN reviews ON reviews.gameID = p.gameID', [gameID]
