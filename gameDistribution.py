@@ -483,7 +483,7 @@ def sale_report():
             'FROM games JOIN transactions '
             'ON games.gameID = transactions.gameID '
             'WHERE transactions.date > ? AND transactions.date < ?'
-            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, sort_type]
+            'GROUP BY games.gameID ORDER BY ? ASC ', [start, end, sort_type]
         )
         games = cursor.fetchall()
         data_list = []
@@ -493,7 +493,7 @@ def sale_report():
             d['copies'] = game[1]
             d['income'] = game[2] / 100.0
             data_list.append(d)
-        print data_list
+        print data_list, sort_type
         return render_template('sale_report.html', session=session, games=data_list)
     else:
         return render_template("sale_report.html", session=session, games={})
@@ -556,6 +556,13 @@ def popular_genre():
     else:
         return render_template("popular_genre.html", session=session, genres={})
 
+
+@app.route('/update-discount/<int:gameID>', methods=['POST'])
+def update_discount(gameID):
+    discount = int(request.form['new-discount'])
+    g.db.execute('UPDATE games SET discount=? WHERE gameID=?', [discount, gameID])
+    g.db.commit()
+    return redirect(url_for('profile'))
 
 @app.before_request
 def before_request():

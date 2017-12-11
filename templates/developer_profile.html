@@ -32,7 +32,14 @@
                 {% endif %}
                 <td>{{ game['copies'] }}</td>
                 <td>{{ game['income'] }}</td>
-                <td>{{ game['discount'] }}% <a href="/update-discount">Update</a></td>
+                <td>{{ game['discount'] }}%
+                    <button onclick="showUpdateForm('{{ game['gameID'] }}')">Update</button>
+                    <form id="update-form-{{ game['gameID'] }}" method="post"
+                          action="/update-discount/{{ game['gameID'] }}" style="display: none;">
+                        <input type="number" name="new-discount">
+                        <input type="submit" value="update">
+                    </form>
+                </td>
                 <td>
                     <a href="/add-genre/{{ game['gameID'] }}">Add</a>,
                     {% for g in game['genres'] %}<button>{{ g }}</button> {% endfor %}
@@ -40,4 +47,9 @@
             </tr>
         {% endfor %}
     </table>
+    <script>
+    function showUpdateForm(id) {
+        $("#update-form-" + id).toggle();
+    }
+    </script>
 {% endblock %}
