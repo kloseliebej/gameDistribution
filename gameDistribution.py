@@ -129,7 +129,8 @@ def profile():
                 '(SELECT games.name, transactions.date, games.gameID FROM games '
                 'JOIN transactions ON transactions.gameID = games.gameID '
                 'AND transactions.userID = ?) AS owned '
-                'LEFT JOIN reviews ON owned.gameID = reviews.gameID', [session['userID']]
+                'LEFT JOIN reviews ON owned.gameID = reviews.gameID '
+                'AND reviews.userID = ?', [session['userID'], session['userID']]
             )
             games = cursor.fetchall()
             print games
@@ -484,9 +485,10 @@ def sale_report():
             'FROM games JOIN transactions '
             'ON games.gameID = transactions.gameID '
             'WHERE transactions.date > ? AND transactions.date < ?'
-            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, sort_type]
+            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, 'copies']
         )
         games = cursor.fetchall()
+        print games
         data_list = []
         for game in games:
             d = {}
