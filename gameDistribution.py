@@ -480,13 +480,22 @@ def sale_report():
         start = request.form['start']
         end = request.form['end']
         sort_type = request.form['type']
-        cursor = g.db.execute(
-            'SELECT name, COUNT(*) AS copies, price * COUNT(*) * discount AS income '
-            'FROM games JOIN transactions '
-            'ON games.gameID = transactions.gameID '
-            'WHERE transactions.date > ? AND transactions.date < ?'
-            'GROUP BY games.gameID ORDER BY ? DESC ', [start, end, sort_type]
-        )
+        if sort_type == 'copies':
+            cursor = g.db.execute(
+                'SELECT name, COUNT(*) AS copies, price * COUNT(*) * discount AS income '
+                'FROM games JOIN transactions '
+                'ON games.gameID = transactions.gameID '
+                'WHERE transactions.date > ? AND transactions.date < ?'
+                'GROUP BY games.gameID ORDER BY copies DESC ', [start, end]
+            )
+        else:
+            cursor = g.db.execute(
+                'SELECT name, COUNT(*) AS copies, price * COUNT(*) * discount AS income '
+                'FROM games JOIN transactions '
+                'ON games.gameID = transactions.gameID '
+                'WHERE transactions.date > ? AND transactions.date < ?'
+                'GROUP BY games.gameID ORDER BY income DESC ', [start, end]
+            )
         games = cursor.fetchall()
         print games
         data_list = []
